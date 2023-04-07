@@ -1,5 +1,5 @@
 -- Create syntax for TABLE 'group'
-CREATE TABLE `group` (
+CREATE TABLE IF NOT EXISTS `group` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `variables` longtext,
@@ -9,7 +9,7 @@ CREATE TABLE `group` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- Create syntax for TABLE 'childgroups'
-CREATE TABLE `childgroups` (
+CREATE TABLE IF NOT EXISTS `childgroups` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `child_id` int(11) NOT NULL,
   `parent_id` int(11) NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE `childgroups` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- Create syntax for TABLE 'host'
-CREATE TABLE `host` (
+CREATE TABLE IF NOT EXISTS `host` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `host` varchar(255) NOT NULL,
   `hostname` varchar(255) NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE `host` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- Create syntax for TABLE 'hostgroups'
-CREATE TABLE `hostgroups` (
+CREATE TABLE IF NOT EXISTS `hostgroups` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `host_id` int(11) NOT NULL,
   `group_id` int(11) NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE `hostgroups` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- Create syntax for VIEW 'inventory'
-CREATE VIEW `inventory`
+CREATE VIEW IF NOT EXISTS `inventory`
 AS SELECT
    `group`.`name` AS `group`,
    `host`.`host` AS `host`,
@@ -56,14 +56,14 @@ AS SELECT
 FROM (`group` left join (`host` left join `hostgroups` on((`host`.`id` = `hostgroups`.`host_id`))) on((`hostgroups`.`group_id` = `group`.`id`))) where ((`host`.`enabled` = 1) and (`group`.`enabled` = 1)) order by `host`.`hostname`;
 
 -- Create syntax for VIEW 'children'
-CREATE VIEW `children`
+CREATE VIEW IF NOT EXISTS `children`
 AS SELECT
    `gparent`.`name` AS `parent`,
    `gchild`.`name` AS `child`
 FROM (((`childgroups` left join `group` `gparent` on((`childgroups`.`parent_id` = `gparent`.`id`))) left join `group` `gchild` on((`childgroups`.`child_id` = `gchild`.`id`))) left join `inventory` on((`gchild`.`name` = `inventory`.`group`))) where ((`gparent`.`enabled` = 1) and (`gchild`.`enabled` = 1) and (`inventory`.`hostname` is not null)) group by `gparent`.`name`,`gchild`.`name` order by `gparent`.`name`;
 
 -- Create syntax for VIEW 'children_all'
-CREATE VIEW `children_all`
+CREATE VIEW IF NOT EXISTS `children_all`
 AS select 
     `gparent`.`name` AS `parent`,
     `gchild`.`name` AS `child` 
